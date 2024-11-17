@@ -1,5 +1,3 @@
-using System;
-using System.Configuration;
 using BuyMyHouseMortgageApp.Models;
 using BuyMyHouseMortgageApp.Repositories;
 using BuyMyHouseMortgageApp.Services;
@@ -7,7 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace BuyMyHouseMortgageApp.DailyMortgageApplicationBatch
+namespace BuyMyHouseMortgageApp.Functions
 {
     public class DailyMortgageApplicationBatchFunction
     {
@@ -25,22 +23,30 @@ namespace BuyMyHouseMortgageApp.DailyMortgageApplicationBatch
         }
 
         [Function("DailyMortgageApplicationBatchFunction")]
-        public async Task DailyMortgageApplicationBatch([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            
+
             if (myTimer.ScheduleStatus is not null)
             {
                 _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
             }
 
-            var expiredApplications = await _mortgageApplicationRepository.GetExpiredMortgageApplicationsAsync();
-
-            // Process the expired mortgage applications, e.g., generate and send offers
-            foreach (var application in expiredApplications)
+            try
             {
-                // Implement the logic to process the expired application
-                await ProcessExpiredMortgageApplicationAsync(application);
+                var expiredApplications = await _mortgageApplicationRepository.GetExpiredMortgageApplicationsAsync();
+
+                // Process the expired mortgage applications, e.g., generate and send offers
+                foreach (var application in expiredApplications)
+                {
+                    // Process the expired application
+                    await ProcessExpiredMortgageApplicationAsync(application);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing mortgage applications.");
+                throw; // Re-throw the exception to ensure the function fails as expected
             }
         }
 
@@ -58,11 +64,13 @@ namespace BuyMyHouseMortgageApp.DailyMortgageApplicationBatch
 
             // Send the offer email to the applicant
             await _emailService.SendOfferEmailAsync(application.ApplicantName, offer.ToString());
+
+            _logger.LogInformation($"Offer email sent to: {application.ApplicantName}");
         }
 
         private MortgageOffer GenerateMortgageOffer(MortgageApplication application)
         {
-            // Implement the logic to generate the mortgage offer based on the application details
+            // Proof of concept logic to generate the mortgage offer based on the application details
             return new MortgageOffer
             {
                 LoanAmount = application.LoanAmount,
