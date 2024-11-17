@@ -7,17 +7,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace BuyMyHouseMortgageApp.SubmitMortgageApplication
 {
     public class SubmitMortgageApplicationFunction
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<SubmitMortgageApplicationFunction> _logger;
         private readonly IHouseRepository _houseRepository;
         private readonly IMortgageApplicationRepository _mortgageApplicationRepository;
         private readonly IEmailService _emailService;
 
-        public SubmitMortgageApplicationFunction(ILogger logger, IHouseRepository houseRepository, IMortgageApplicationRepository mortgageApplicationRepository, IEmailService emailService)
+        public SubmitMortgageApplicationFunction(ILogger<SubmitMortgageApplicationFunction> logger, IHouseRepository houseRepository, IMortgageApplicationRepository mortgageApplicationRepository, IEmailService emailService)
         {
             _logger = logger;
             _houseRepository = houseRepository;
@@ -26,18 +27,24 @@ namespace BuyMyHouseMortgageApp.SubmitMortgageApplication
         }
 
         [Function("SubmitMortgageApplication")]
-        public async Task<IActionResult> SubmitMortgageApplication([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+        public async Task<HttpResponseData> SubmitMortgageApplication([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
         {
             _logger.LogInformation("Processing mortgage application submission request.");
 
             // Deserialize the request body
             var application = await req.ReadFromJsonAsync<MortgageApplication>();
+            _logger.LogInformation("Successfully deserialized application: {ApplicantName}", application?.ApplicantName);
 
             // Validate the input
-            if (string.IsNullOrEmpty(application?.ApplicantName) || application.ApplicantIncome <= 0 || application.LoanAmount <= 0 || application.PropertyId <= 0)
+            if (string.IsNullOrEmpty(application?.ApplicantName) ||
+                application.ApplicantIncome <= 0 ||
+                application.LoanAmount <= 0 ||
+                application.PropertyId <= 0)
             {
                 _logger.LogWarning("Invalid mortgage application input: {application}", application);
-                return new BadRequestObjectResult("Invalid mortgage application data.");
+                var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badResponse.WriteStringAsync("Invalid mortgage application data.");
+                return badResponse;
             }
 
             // Set default application properties
@@ -48,15 +55,20 @@ namespace BuyMyHouseMortgageApp.SubmitMortgageApplication
             try
             {
                 // Save the mortgage application
+                _logger.LogInformation("Attempting to save application to repository");
                 await _mortgageApplicationRepository.CreateMortgageApplicationAsync(application);
-
                 _logger.LogInformation("Mortgage application submitted successfully: {application}", application);
-                return new OkObjectResult("Mortgage application submitted successfully!");
+
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                await response.WriteStringAsync("Mortgage application submitted successfully!");
+                return response;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error submitting mortgage application: {application}", application);
-                return new ObjectResult("Error submitting mortgage application.") { StatusCode = 500 };
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteStringAsync("Error submitting mortgage application.");
+                return errorResponse;
             }
         }
     }

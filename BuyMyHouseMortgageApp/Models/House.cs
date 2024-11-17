@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace BuyMyHouseMortgageApp.Models
+﻿namespace BuyMyHouseMortgageApp.Models
 {
     public class House
     {
@@ -13,6 +7,7 @@ namespace BuyMyHouseMortgageApp.Models
         public float Price { get; set; }
         public int Bedrooms { get; set; }
         public int Bathrooms { get; set; }
-        public float SquareFeet { get; set; }
+        public float SquareMeters { get; set; }
+        public string ImageURL { get; set; } = string.Empty;
     }
 }

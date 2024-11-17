@@ -25,7 +25,7 @@ namespace BuyMyHouseMortgageApp.DailyMortgageApplicationBatch
         }
 
         [Function("DailyMortgageApplicationBatchFunction")]
-        public async Task DailyMortgageApplicationBatch([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
+        public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
             
