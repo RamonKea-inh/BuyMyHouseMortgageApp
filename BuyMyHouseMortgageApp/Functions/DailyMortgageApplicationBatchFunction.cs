@@ -1,9 +1,11 @@
+using Azure.Storage.Queues;
 using BuyMyHouseMortgageApp.Models;
 using BuyMyHouseMortgageApp.Repositories;
 using BuyMyHouseMortgageApp.Services;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace BuyMyHouseMortgageApp.Functions
 {
@@ -13,6 +15,7 @@ namespace BuyMyHouseMortgageApp.Functions
         private readonly IMortgageApplicationRepository _mortgageApplicationRepository;
         private readonly IConfiguration _configuration;
         private readonly IEmailService _emailService;
+        private readonly QueueClient _queueClient;
 
         public DailyMortgageApplicationBatchFunction(ILoggerFactory loggerFactory, IMortgageApplicationRepository mortgageApplicationRepository, IConfiguration configuration, IEmailService emailService)
         {
@@ -20,6 +23,8 @@ namespace BuyMyHouseMortgageApp.Functions
             _mortgageApplicationRepository = mortgageApplicationRepository;
             _configuration = configuration;
             _emailService = emailService;
+            _queueClient = new QueueClient(_configuration["AzureWebJobsStorage"], "emailqueue");
+            _queueClient.CreateIfNotExists();
         }
 
         [Function("DailyMortgageApplicationBatchFunction")]
@@ -46,7 +51,7 @@ namespace BuyMyHouseMortgageApp.Functions
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while processing mortgage applications.");
-                throw; // Re-throw the exception to ensure the function fails as expected
+                throw;
             }
         }
 
@@ -62,8 +67,14 @@ namespace BuyMyHouseMortgageApp.Functions
 
             await _mortgageApplicationRepository.UpdateMortgageApplicationAsync(application);
 
-            // Send the offer email to the applicant
-            await _emailService.SendOfferEmailAsync(application.ApplicantName, offer.ToString());
+            // Enqueue the email message
+            var emailMessage = new EmailMessage
+            {
+                RecipientName = application.ApplicantName,
+                OfferDetails = offer.ToString()
+            };
+            var messageJson = JsonConvert.SerializeObject(emailMessage);
+            await _queueClient.SendMessageAsync(messageJson);
 
             _logger.LogInformation($"Offer email sent to: {application.ApplicantName}");
         }

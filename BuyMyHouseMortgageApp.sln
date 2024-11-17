@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuyMyHouseMortgageApp", "BuyMyHouseMortgageApp\BuyMyHouseMortgageApp.csproj", "{525B85B8-1E66-46D7-86FE-59BE5B70AEBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BuyMyHouseMortgageApp.Tests", "BuyMyHouseMortgageApp.Tests\BuyMyHouseMortgageApp.Tests.csproj", "{CB2DC5A2-A0A5-4130-A863-8C7F6979E7AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BuyMyHouseMortgageApp.Tests", "BuyMyHouseMortgageApp.Tests\BuyMyHouseMortgageApp.Tests.csproj", "{CB2DC5A2-A0A5-4130-A863-8C7F6979E7AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
