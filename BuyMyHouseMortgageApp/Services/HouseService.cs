@@ -1,10 +1,5 @@
 ﻿using BuyMyHouseMortgageApp.Models;
 using BuyMyHouseMortgageApp.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BuyMyHouseMortgageApp.Services
 {
@@ -30,6 +25,11 @@ namespace BuyMyHouseMortgageApp.Services
         public Task CreateHouse(House house, string imagePath)
         {
             return _houseRepository.CreateHouseAsync(house, imagePath);
+        }
+
+        public async Task<IEnumerable<House>> SearchHousesByPriceRange(float minPrice, float maxPrice)
+        {
+            return await _houseRepository.SearchHousesByPriceRangeAsync(minPrice, maxPrice);
         }
     }
 }

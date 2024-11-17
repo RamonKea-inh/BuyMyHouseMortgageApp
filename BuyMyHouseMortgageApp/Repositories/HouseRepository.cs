@@ -87,5 +87,28 @@ namespace BuyMyHouseMortgageApp.Repositories
 
             return houses;
         }
+
+        public async Task<IEnumerable<House>> SearchHousesByPriceRangeAsync(float minPrice, float maxPrice)
+        {
+            var query = _tableClient.QueryAsync<HouseEntity>(
+                filter: $"PartitionKey eq 'House' and Price ge {minPrice} and Price le {maxPrice}");
+            var houses = new List<House>();
+
+            await foreach (var entity in query)
+            {
+                houses.Add(new House
+                {
+                    Id = entity.Id,
+                    Address = entity.Address,
+                    Price = entity.Price,
+                    Bedrooms = entity.Bedrooms,
+                    Bathrooms = entity.Bathrooms,
+                    SquareMeters = entity.SquareMeters,
+                    ImageURL = entity.ImageURL
+                });
+            }
+
+            return houses;
+        }
     }
 }

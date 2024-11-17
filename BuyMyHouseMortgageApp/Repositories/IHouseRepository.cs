@@ -1,9 +1,4 @@
 ﻿using BuyMyHouseMortgageApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BuyMyHouseMortgageApp.Repositories
 {
@@ -12,5 +7,6 @@ namespace BuyMyHouseMortgageApp.Repositories
         Task<House> GetHouseByIdAsync(int houseId);
         Task<IEnumerable<House>> GetHousesAsync();
         Task CreateHouseAsync(House house, string imagePath);
+        Task<IEnumerable<House>> SearchHousesByPriceRangeAsync(float minPrice, float maxPrice);
     }
 }
