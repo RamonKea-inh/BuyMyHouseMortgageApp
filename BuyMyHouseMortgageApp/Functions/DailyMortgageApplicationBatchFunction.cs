@@ -1,5 +1,3 @@
-using System;
-using System.Configuration;
 using BuyMyHouseMortgageApp.Models;
 using BuyMyHouseMortgageApp.Repositories;
 using BuyMyHouseMortgageApp.Services;
@@ -7,7 +5,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace BuyMyHouseMortgageApp.DailyMortgageApplicationBatch
+namespace BuyMyHouseMortgageApp.Functions
 {
     public class DailyMortgageApplicationBatchFunction
     {
@@ -28,7 +26,7 @@ namespace BuyMyHouseMortgageApp.DailyMortgageApplicationBatch
         public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
         {
             _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            
+
             if (myTimer.ScheduleStatus is not null)
             {
                 _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
@@ -62,7 +60,7 @@ namespace BuyMyHouseMortgageApp.DailyMortgageApplicationBatch
 
         private MortgageOffer GenerateMortgageOffer(MortgageApplication application)
         {
-            // Implement the logic to generate the mortgage offer based on the application details
+            // Proof of concept logic to generate the mortgage offer based on the application details
             return new MortgageOffer
             {
                 LoanAmount = application.LoanAmount,

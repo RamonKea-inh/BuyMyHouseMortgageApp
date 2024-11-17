@@ -27,6 +27,14 @@ var host = new HostBuilder()
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IMortgageApplicationService, MortgageApplicationService>();
         services.AddScoped<IHouseService, HouseService>();
+
+        // Register BlobStorageService with connection string from configuration
+        services.AddScoped<IBlobStorageService>(provider =>
+        {
+            var configuration = provider.GetRequiredService<IConfiguration>();
+            var connectionString = configuration["AzureStorage:ConnectionString"];
+            return new BlobStorageService(connectionString);
+        });
     })
     .Build();
 

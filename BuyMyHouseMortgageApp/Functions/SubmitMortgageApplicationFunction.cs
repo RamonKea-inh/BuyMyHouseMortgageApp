@@ -1,15 +1,14 @@
+using Azure;
 using BuyMyHouseMortgageApp.Models;
 using BuyMyHouseMortgageApp.Repositories;
 using BuyMyHouseMortgageApp.Services;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
-namespace BuyMyHouseMortgageApp.SubmitMortgageApplication
+namespace BuyMyHouseMortgageApp.Functions
 {
     public class SubmitMortgageApplicationFunction
     {
@@ -62,6 +61,13 @@ namespace BuyMyHouseMortgageApp.SubmitMortgageApplication
                 var response = req.CreateResponse(HttpStatusCode.OK);
                 await response.WriteStringAsync("Mortgage application submitted successfully!");
                 return response;
+            }
+            catch (RequestFailedException ex) when (ex.Status == 409)
+            {
+                _logger.LogWarning("Mortgage application already exists: {application}", application);
+                var conflictResponse = req.CreateResponse(HttpStatusCode.Conflict);
+                await conflictResponse.WriteStringAsync("The specified entity already exists.");
+                return conflictResponse;
             }
             catch (Exception ex)
             {

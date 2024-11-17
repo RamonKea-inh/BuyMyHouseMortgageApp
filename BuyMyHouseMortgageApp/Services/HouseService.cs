@@ -26,5 +26,10 @@ namespace BuyMyHouseMortgageApp.Services
         {
             return await _houseRepository.GetHousesAsync();
         }
+
+        public Task CreateHouse(House house, string imagePath)
+        {
+            return _houseRepository.CreateHouseAsync(house, imagePath);
+        }
     }
 }

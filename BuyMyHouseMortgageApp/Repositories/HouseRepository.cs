@@ -1,5 +1,6 @@
 ﻿using Azure.Data.Tables;
 using BuyMyHouseMortgageApp.Models;
+using BuyMyHouseMortgageApp.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace BuyMyHouseMortgageApp.Repositories
@@ -8,17 +9,23 @@ namespace BuyMyHouseMortgageApp.Repositories
     {
         private readonly TableClient _tableClient;
         private const string TableName = "Houses";
+        private readonly IBlobStorageService _blobStorageService;
 
-        public HouseRepository(IConfiguration configuration)
+        public HouseRepository(IConfiguration configuration, IBlobStorageService blobStorageService)
         {
             var connectionString = configuration["AzureStorage:ConnectionString"];
             var tableServiceClient = new TableServiceClient(connectionString);
             _tableClient = tableServiceClient.GetTableClient(TableName);
             _tableClient.CreateIfNotExists();
+
+            _blobStorageService = blobStorageService;
         }
 
-        public async Task CreateHouseAsync(House house)
+        public async Task CreateHouseAsync(House house, string imagePath)
         {
+            // Upload image to blob storage and get the URL
+            var imageUrl = await _blobStorageService.UploadImageAsync(imagePath, $"{house.Id}.jpg");
+
             var entity = new HouseEntity
             {
                 PartitionKey = "House",

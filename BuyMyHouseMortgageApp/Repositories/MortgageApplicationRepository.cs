@@ -29,7 +29,7 @@ namespace BuyMyHouseMortgageApp.Repositories
             var entity = new MortgageApplicationEntity
             {
                 PartitionKey = application.PropertyId.ToString(), // Using PropertyId as partition key
-                RowKey = application.Id.ToString(),
+                RowKey = Guid.NewGuid().ToString(),
                 Id = application.Id,
                 ApplicantName = application.ApplicantName,
                 ApplicantIncome = application.ApplicantIncome,

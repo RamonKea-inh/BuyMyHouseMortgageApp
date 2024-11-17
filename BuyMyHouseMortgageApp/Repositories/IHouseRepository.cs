@@ -11,6 +11,6 @@ namespace BuyMyHouseMortgageApp.Repositories
     {
         Task<House> GetHouseByIdAsync(int houseId);
         Task<IEnumerable<House>> GetHousesAsync();
-        Task CreateHouseAsync(House house);
+        Task CreateHouseAsync(House house, string imagePath);
     }
 }

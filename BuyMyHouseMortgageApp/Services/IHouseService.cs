@@ -1,9 +1,4 @@
 ﻿using BuyMyHouseMortgageApp.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BuyMyHouseMortgageApp.Services
 {
@@ -12,5 +7,7 @@ namespace BuyMyHouseMortgageApp.Services
         Task<IEnumerable<House>> GetHouses();
 
         Task<House> GetHouseById(int houseId);
+
+        Task CreateHouse(House house, string imagePath);
     }
 }
