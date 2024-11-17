@@ -1,7 +1,7 @@
 # BuyMyHouseMortgageApp
 
 ## Overview
-**BuyMyHouseMortgageApp** is an Azure Functions application designed to streamline the mortgage application process. It integrates with email services (e.g., SendGrid) for notifications and uses a Table Storage database for managing mortgage application and house data. 
+**BuyMyHouseMortgageApp** is an Azure Functions application designed to streamline the mortgage application process. It uses a email message queue that triggers a function that calls email service SendGrid for notifications and uses a Table Storage database for managing mortgage application and house data. 
 A blob storage is used to store the images of the houses.
 
 ## Prerequisites
